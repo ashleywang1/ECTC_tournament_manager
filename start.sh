@@ -13,7 +13,8 @@ cd /usr/src/app
 useradd tmdb
 
 # Clone the tournament_manager code
-git clone https://github.com/ashish-b10/tournament_manager.git
+# git clone https://github.com/ashish-b10/tournament_manager.git
+git clone git@github.com:ashleywang1/ECTC_tournament_manager.git
 
 pip3 install -r tournament_manager/requirements.txt
 pip3 install cryptography
@@ -24,6 +25,7 @@ apk add postgresql
 apk add postgresql-contrib
 apk add curl
 curl -o /usr/local/bin/gosu -sSL "https://github.com/tianon/gosu/releases/download/1.2/gosu-amd64"
+chmod +x /usr/local/bin/gosu
 
 mkdir tmdb_data
 chmod 775 tmdb_data

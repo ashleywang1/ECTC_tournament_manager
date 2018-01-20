@@ -120,6 +120,8 @@ RUN set -ex; \
 
 RUN apk update
 RUN apk add openrc git sudo g++ gcc musl-dev python3-dev libffi-dev libressl-dev
+RUN apk add build-base python-dev py-pip jpeg-dev zlib-dev
+ENV LIBRARY_PATH=/lib:/usr/lib
 
 # Install Postgres database
 RUN apk add postgresql postgresql-dev
