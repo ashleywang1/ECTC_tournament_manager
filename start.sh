@@ -6,25 +6,64 @@
 #    --bind 0.0.0.0:8000 \
 #    --workers 3
 
-# Install PostgreSQL
-#brew install postgres
-#brew services start postgresql
-sudo apt-get install postgresql postgresql-contrib
-sudo /etc/init.d/postgresql start
+# Move into the code source directory
+cd /usr/src/app
+
+# Add tmdb user
+useradd tmdb
+
+# Clone the tournament_manager code
+git clone https://github.com/ashish-b10/tournament_manager.git
+
+pip3 install -r tournament_manager/requirements.txt
+pip3 install cryptography
+
+# Set up the database
+apk update
+apk add postgresql
+apk add postgresql-contrib
+apk add curl
+curl -o /usr/local/bin/gosu -sSL "https://github.com/tianon/gosu/releases/download/1.2/gosu-amd64"
+
+mkdir tmdb_data
+chmod 775 tmdb_data
+sudo chown postgres tmdb_data
+gosu postgres initdb tmdb_data
+
+mkdir -p /run/postgresql
+chmod g+s /run/postgresql
+chown -R postgres /run/postgresql
+gosu postgres pg_ctl -D tmdb_data/ -o "-c listen_addresses=''" -w start
 
 # Create user and database
-createuser tmdb -d
-createdb tmdb
+gosu postgres createuser tmdb -d
+gosu postgres createdb tmdb
+
+# edit the pg_hba.conf file
+echo """# "local" is for Unix domain socket connections only
+local   all             user                                    trust
+# IPv4 local connections:
+host    all             tmdb            127.0.0.1/32            trust
+# IPv6 local connections:
+host    all             tmdb            ::1/128                 trust""" >> tmdb_data/pg_hba.conf
+
+# Restart the server
+gosu postgres pg_ctl -D tmdb_data/ -o "-c listen_addresses=''" -w restart
+
+# Python bindings
+pip3 install psycopg2 pelican
+
+pip3 install django-bootstrap-form
 
 # Customize Postgres configuration file
-cp pg_hba.conf /usr/local/var/postgres/
+# cp pg_hba.conf /usr/local/var/postgres/
 
 # Restart to make changes apply
 # brew services restart postgresql
-/etc/init.d/postgresql restart
+# /etc/init.d/postgresql restart
 
 # Set up PostgreSQL for Django
-python manage.py makemigrations tmdb && python manage.py migrate
+# python manage.py makemigrations tmdb && python manage.py migrate
 
-echo Starting ECTC_tournament_server
-python manage.py runserver
+# echo Starting ECTC_tournament_server
+# python manage.py runserver

@@ -53,6 +53,7 @@ RUN set -ex \
 		tk-dev \
 		xz-dev \
 		zlib-dev \
+# add build deps before removing fetch deps in case there's overlap
 	&& apk del .fetch-deps \
 	\
 	&& cd /usr/src/python \
@@ -65,6 +66,8 @@ RUN set -ex \
 		--with-system-ffi \
 		--without-ensurepip \
 	&& make -j "$(nproc)" \
+# set thread stack size to 1MB so we don't segfault before we hit sys.getrecursionlimit()
+# https://github.com/alpinelinux/aports/commit/2026e1259422d4e0cf92391ca2d3844356c649d0
 		EXTRA_CFLAGS="-DTHREAD_STACK_SIZE=0x100000" \
 	&& make install \
 	\
@@ -118,20 +121,10 @@ RUN set -ex; \
 		\) -exec rm -rf '{}' +; \
 	rm -f get-pip.py
 
-RUN apk update
-RUN apk add openrc git sudo g++ gcc musl-dev python3-dev libffi-dev libressl-dev
-
-# Install Postgres database
-RUN apk add postgresql postgresql-dev
-
-RUN mkdir -p /usr/src/app
-WORKDIR /usr/src/app
-
 COPY start.sh /start.sh
 
 # EXPOSE port 8000 to allow communication to/from server
 EXPOSE 8000
 
 # CMD specifcies the command to execute to start the server running.
-#CMD ["/start.sh"]
-
+# CMD ["/start.sh"]
