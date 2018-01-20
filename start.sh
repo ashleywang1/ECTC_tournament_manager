@@ -14,7 +14,7 @@ useradd tmdb
 
 # Clone the tournament_manager code
 # git clone https://github.com/ashish-b10/tournament_manager.git
-git clone git@github.com:ashleywang1/ECTC_tournament_manager.git
+git clone https://github.com/ashleywang1/ECTC_tournament_manager.git
 
 pip3 install -r tournament_manager/requirements.txt
 pip3 install cryptography
