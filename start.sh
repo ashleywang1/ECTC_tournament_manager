@@ -59,6 +59,9 @@ pip3 install django-bootstrap-form
 
 # Customize Postgres configuration file
 # cp pg_hba.conf /usr/local/var/postgres/
+cd ECTC_tournament_manager
+python manage.py makemigrations tmdb && python manage.py migrate
+
 
 # Restart to make changes apply
 # brew services restart postgresql

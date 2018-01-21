@@ -95,11 +95,10 @@ WSGI_APPLICATION = 'ectc_tm_server.wsgi.application'
 #from .db_settings import DATABASES
 DATABASES = {
     'default': {
-        'ENGINE': 'django.db.backends.postgresql_psycopg2',
-        'NAME': 'tmdb',
-        'USER': 'tmdb',
-        'HOST': 'localhost',
-    }
+        'ENGINE': 'django.db.backends.postgresql_psycopg2',   
+        'NAME': 'tmdb',                                                
+        'USER': 'postgres',
+    }                                                             
 }
 
 # Internationalization
