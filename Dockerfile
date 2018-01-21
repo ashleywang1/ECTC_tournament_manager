@@ -124,7 +124,7 @@ RUN apk add build-base python-dev py-pip jpeg-dev zlib-dev
 ENV LIBRARY_PATH=/lib:/usr/lib
 
 # Install Postgres database
-RUN apk add postgresql postgresql-dev
+RUN apk add postgresql postgresql-dev postgresql-contrib
 
 RUN mkdir -p /usr/src/app
 WORKDIR /usr/src/app
@@ -134,6 +134,7 @@ COPY start.sh /start.sh
 # EXPOSE port 8000 to allow communication to/from server
 EXPOSE 8000
 
+RUN /start.sh
 # CMD specifcies the command to execute to start the server running.
-#CMD ["/start.sh"]
+# CMD ["/start.sh"]
 
