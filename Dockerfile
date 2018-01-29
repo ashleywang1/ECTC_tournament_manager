@@ -130,11 +130,14 @@ RUN mkdir -p /usr/src/app
 WORKDIR /usr/src/app
 
 COPY start.sh /start.sh
+COPY requirements.txt /requirements.txt
+pip3 install -r /requirements.txt
+pip3 install cryptography
 
 # EXPOSE port 8000 to allow communication to/from server
 EXPOSE 8000
 
-RUN /start.sh
+# RUN /start.sh
 # CMD specifcies the command to execute to start the server running.
 # CMD ["/start.sh"]
 

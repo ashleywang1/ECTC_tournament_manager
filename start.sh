@@ -15,10 +15,10 @@ useradd tmdb
 # Clone the tournament_manager code
 # git clone https://github.com/ashish-b10/tournament_manager.git
 git clone https://github.com/ashleywang1/ECTC_tournament_manager.git
-ln -s ECTC_tournament_manager/ectc_tm_server/db_settings_docker.py ECTC_tournament_manager/ectc_tm_server/.db_settings
+ln -s ECTC_tournament_manager/ectc_tm_server/db_settings_docker.py ECTC_tournament_manager/ectc_tm_server/.db_settings.py
 
-pip3 install -r ECTC_tournament_manager/requirements.txt
-pip3 install cryptography
+#pip3 install -r ECTC_tournament_manager/requirements.txt
+#pip3 install cryptography
 
 # Set up the database
 apk update
@@ -53,23 +53,10 @@ host    all             tmdb            ::1/128                 trust""" >> tmdb
 # Restart the server
 gosu postgres pg_ctl -D tmdb_data/ -o "-c listen_addresses=''" -w restart
 
-# Python bindings
-pip3 install psycopg2 pelican
-
-pip3 install django-bootstrap-form
-
 # Customize Postgres configuration file
 # cp pg_hba.conf /usr/local/var/postgres/
 cd ECTC_tournament_manager
 python manage.py makemigrations tmdb && python manage.py migrate
 
-
-# Restart to make changes apply
-# brew services restart postgresql
-# /etc/init.d/postgresql restart
-
-# Set up PostgreSQL for Django
-# python manage.py makemigrations tmdb && python manage.py migrate
-
-# echo Starting ECTC_tournament_server
-# python manage.py runserver
+echo Starting ECTC_tournament_server
+python manage.py runserver
