@@ -130,6 +130,7 @@ RUN curl -o /usr/local/bin/gosu -sSL "https://github.com/tianon/gosu/releases/do
 RUN chmod +x /usr/local/bin/gosu
 
 COPY start.sh /start.sh
+COPY tmdb/static /static
 COPY requirements.txt /requirements.txt
 RUN pip3 install -r /requirements.txt
 
@@ -145,22 +146,6 @@ RUN cd /usr/src/app
 
 # Clone the tournament_manager code
 RUN git clone https://github.com/ashleywang1/ECTC_tournament_manager.git
-
-# Set up the server
-RUN mkdir tmdb_data
-RUN chmod 775 tmdb_data
-RUN sudo chown postgres tmdb_data
-RUN gosu postgres initdb tmdb_data
-
-RUN mkdir -p /run/postgresql
-RUN chmod g+s /run/postgresql
-RUN chown -R postgres /run/postgresql
-RUN gosu postgres pg_ctl -D tmdb_data/ -o "-c listen_addresses=''" -w start
-
-# Create user and database
-RUN gosu postgres createuser tmdb -d
-RUN gosu postgres createdb tmdb
-
 
 # RUN /start.sh
 # CMD specifcies the command to execute to start the server running.

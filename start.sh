@@ -1,6 +1,24 @@
 #!/bin/sh
 
 
+# Set up the server
+cd /usr/src/app
+mkdir tmdb_data
+chmod 775 tmdb_data
+sudo chown postgres tmdb_data
+gosu postgres initdb tmdb_data
+
+mkdir -p /run/postgresql
+chmod g+s /run/postgresql
+chown -R postgres /run/postgresql
+gosu postgres pg_ctl -D tmdb_data/ -o "-c listen_addresses=''" -w start
+
+# Create user and database
+gosu postgres createuser tmdb -d
+gosu postgres createdb tmdb
+
+
+
 # edit the pg_hba.conf file
 echo """# "local" is for Unix domain socket connections only
 local   all             user                                    trust
