@@ -125,19 +125,44 @@ ENV LIBRARY_PATH=/lib:/usr/lib
 
 # Install Postgres database
 RUN apk add postgresql postgresql-dev postgresql-contrib
-
-RUN mkdir -p /usr/src/app
-WORKDIR /usr/src/app
+RUN apk add curl
+RUN curl -o /usr/local/bin/gosu -sSL "https://github.com/tianon/gosu/releases/download/1.2/gosu-amd64"
+RUN chmod +x /usr/local/bin/gosu
 
 COPY start.sh /start.sh
 COPY requirements.txt /requirements.txt
-pip3 install -r /requirements.txt
-pip3 install cryptography
+RUN pip3 install -r /requirements.txt
 
 # EXPOSE port 8000 to allow communication to/from server
 EXPOSE 8000
 
+RUN mkdir -p /usr/src/app
+WORKDIR /usr/src/app
+# Move into the code source directory
+RUN cd /usr/src/app
+# Add tmdb user
+# useradd tmdb
+
+# Clone the tournament_manager code
+RUN git clone https://github.com/ashleywang1/ECTC_tournament_manager.git
+
+# Set up the server
+RUN mkdir tmdb_data
+RUN chmod 775 tmdb_data
+RUN sudo chown postgres tmdb_data
+RUN gosu postgres initdb tmdb_data
+
+RUN mkdir -p /run/postgresql
+RUN chmod g+s /run/postgresql
+RUN chown -R postgres /run/postgresql
+RUN gosu postgres pg_ctl -D tmdb_data/ -o "-c listen_addresses=''" -w start
+
+# Create user and database
+RUN gosu postgres createuser tmdb -d
+RUN gosu postgres createdb tmdb
+
+
 # RUN /start.sh
 # CMD specifcies the command to execute to start the server running.
-# CMD ["/start.sh"]
+CMD ["/start.sh"]
 
