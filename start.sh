@@ -35,6 +35,10 @@ gosu postgres pg_ctl -D tmdb_data/ -o "-c listen_addresses=''" -w restart
 cd ECTC_tournament_manager
 python manage.py makemigrations tmdb && python manage.py migrate
 
+(
+cd ectc_tm_server && ln -s db_settings_postgresql.py db_settings.py
+)
+
 # Start the Server
 echo Starting ECTC_tournament_server
 #python manage.py runserver 0.0.0.0:8000

@@ -131,7 +131,6 @@ RUN chmod +x /usr/local/bin/gosu
 
 # Install redis
 RUN apk add redis
-RUN service redis start
 
 COPY start.sh /start.sh
 COPY tmdb/static /static
