@@ -129,6 +129,10 @@ RUN apk add curl
 RUN curl -o /usr/local/bin/gosu -sSL "https://github.com/tianon/gosu/releases/download/1.2/gosu-amd64"
 RUN chmod +x /usr/local/bin/gosu
 
+# Install redis
+RUN apk add redis
+RUN service redis start
+
 COPY start.sh /start.sh
 COPY tmdb/static /static
 COPY requirements.txt /requirements.txt

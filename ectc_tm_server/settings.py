@@ -23,9 +23,9 @@ BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 SECRET_KEY = '@-_2l8&w&p80)0vxiq_!*8t0q#2-i9pom%**=n3z%dhl&boag4'
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
+DEBUG = False
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = ['198.98.59.77', 'www.ectc-tournaments.org', 'ectc-tournaments.org']
 
 
 # Application definition
@@ -92,14 +92,7 @@ WSGI_APPLICATION = 'ectc_tm_server.wsgi.application'
 # Database
 # https://docs.djangoproject.com/en/1.8/ref/settings/#databases
 
-#from .db_settings import DATABASES
-DATABASES = {
-    'default': {
-        'ENGINE': 'django.db.backends.postgresql_psycopg2',   
-        'NAME': 'tmdb',                                                
-        'USER': 'postgres',
-    }                                                             
-}
+from .db_settings import DATABASES
 
 # Internationalization
 # https://docs.djangoproject.com/en/1.8/topics/i18n/
@@ -122,7 +115,6 @@ STATIC_URL = '/static/'
 
 STATICFILES_DIRS = (
     os.path.join(BASE_DIR, 'static'),
-    '/usr/src/app/ECTC_tournament_manager/tmdb/static/'
 )
 
 LOGGING = {
@@ -170,7 +162,10 @@ LOGIN_URL = 'tmdb:login'
 
 CHANNEL_LAYERS = {
     "default": {
-        "BACKEND": "asgiref.inmemory.ChannelLayer",
+        "BACKEND": "asgi_redis.RedisChannelLayer",
         "ROUTING": "ectc_tm_server.routing.channel_routing",
+	"CONFIG": {
+		"hosts": [('localhost', 6379)],
+	},
     },
 }
