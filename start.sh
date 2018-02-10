@@ -33,11 +33,10 @@ gosu postgres pg_ctl -D tmdb_data/ -o "-c listen_addresses=''" -w restart
 # Customize Postgres configuration file
 # cp pg_hba.conf /usr/local/var/postgres/
 cd ECTC_tournament_manager
-python manage.py makemigrations tmdb && python manage.py migrate
-
 (
-cd ectc_tm_server && ln -s db_settings_postgresql.py db_settings.py
+cd ectc_tm_server && ln -s db_settings_docker.py db_settings.py
 )
+python manage.py makemigrations tmdb && python manage.py migrate
 
 # Start the Server
 echo Starting ECTC_tournament_server
