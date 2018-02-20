@@ -10,8 +10,10 @@ cryptography==2.1.4
 daphne==1.3.0
 Django==1.11.3
 django-bootstrap-form==3.2.1
+django-redis==4.8.0
 git+http://github.com/ashish-b10/ectc_registration.git@b99529668b17691a2f85ae010a797a88d54d516d#egg=ectc_registration_exporter
 google-api-python-client==1.6.2
+gunicorn
 httplib2==0.10.3
 hyperlink==17.2.1
 idna==2.5
@@ -20,9 +22,8 @@ oauth2client==4.1.2
 odfpy==1.3.5
 olefile==0.44
 packaging==16.8
-pelican
-Pillow==5.0.0
-psycopg2
+Pillow==4.2.0
+psycopg2-binary
 pyasn1==0.2.3
 pyasn1-modules==0.0.9
 pycparser==2.18

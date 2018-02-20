@@ -23,9 +23,9 @@ BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 SECRET_KEY = '@-_2l8&w&p80)0vxiq_!*8t0q#2-i9pom%**=n3z%dhl&boag4'
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = False
+DEBUG = True
 
-ALLOWED_HOSTS = ['198.98.59.77', 'www.ectc-tournaments.org', 'ectc-tournaments.org']
+ALLOWED_HOSTS = []
 
 
 # Application definition
@@ -92,7 +92,39 @@ WSGI_APPLICATION = 'ectc_tm_server.wsgi.application'
 # Database
 # https://docs.djangoproject.com/en/1.8/ref/settings/#databases
 
-from .db_settings import DATABASES
+if 'DB_NAME' in os.environ:
+    # Running the Docker image
+    DATABASES = {
+        'default': {
+            'ENGINE': 'django.db.backends.postgresql_psycopg2',
+            'NAME': os.environ['DB_NAME'],
+            'USER': os.environ['DB_USER'],
+            'PASSWORD': os.environ['DB_PASS'],
+            'HOST': os.environ['DB_SERVICE'],
+            'PORT': os.environ['DB_PORT']
+        }
+    }
+else:
+    # Building the Docker image
+    DATABASES = {
+        'default': {
+            'ENGINE': 'django.db.backends.sqlite3',
+            'NAME': os.path.join(BASE_DIR, 'db.sqlite3'),
+        }
+    }
+
+CACHES = {
+    "default": {
+        "BACKEND": "django_redis.cache.RedisCache",
+        "LOCATION": "redis://redis:6379/0",
+        "OPTIONS": {
+            "CLIENT_CLASS": "django_redis.client.DefaultClient",
+        }
+    }
+}
+
+SESSION_ENGINE = "django.contrib.sessions.backends.cache"
+SESSION_CACHE_ALIAS = "default"
 
 # Internationalization
 # https://docs.djangoproject.com/en/1.8/topics/i18n/
@@ -162,10 +194,7 @@ LOGIN_URL = 'tmdb:login'
 
 CHANNEL_LAYERS = {
     "default": {
-        "BACKEND": "asgi_redis.RedisChannelLayer",
+        "BACKEND": "asgiref.inmemory.ChannelLayer",
         "ROUTING": "ectc_tm_server.routing.channel_routing",
-	"CONFIG": {
-		"hosts": [('localhost', 6379)],
-	},
     },
 }
