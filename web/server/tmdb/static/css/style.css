@@ -3,15 +3,23 @@ body {
 }
 
 .team_match_at_ring {
-  background-color: cyan !important;
+  background-color: orange;
 }
 
 .team_match_sent_to_ring {
-  background-color: lightblue !important;
+  background-color: lightblue;
 }
 
 .team_match_in_holding {
-  background-color: lightskyblue !important;
+  background-color: yellow;
+}
+
+.team_match_competing {
+    background-color: aqua !important;
+}
+
+.team_match_complete {
+    background-color: lightgreen;
 }
 
 .errorlist {
@@ -40,12 +48,11 @@ body {
 }
 @media (min-width: 768px) {
   .sidebar {
-    position: fixed;
     bottom: 0;
     left: 0;
     z-index: 1000;
     display: block;
-    padding: 20px;
+    padding: 10px;
     overflow-x: hidden;
     overflow-y: auto; /* Scrollable contents if viewport is shorter than content. */
     background-color: #f5f5f5;
@@ -76,6 +83,39 @@ body {
   background-color: #428bca;
 }
 
+/* Shrinking the sidebar from 250px to 80px and center aligning its content*/
+#mainNav.active {
+    min-width: 50px;
+    max-width: 70px;
+    text-align: center;
+}
+
+/* Toggling the sidebar header content, hide the big heading [h3] and showing the small heading [strong] and vice versa*/
+
+#mainNav ul li a {
+    text-align: left;
+}
+
+#mainNav.active ul li a {
+    padding: 15px 10px;
+    text-align: center;
+    font-size: 0.75em;
+}
+
+#mainNav.active ul li a i {
+    margin-right:  0;
+    display: block;
+    font-size: 1.8em;
+    margin-bottom: 5px;
+}
+
+#mainNav.active ul li a .nav-link-text{
+    margin-right:  0;
+    display: block;
+    font-size: 1em;
+    margin-bottom: 5px;
+}
+
 
 /*
  * Main content
@@ -92,4 +132,28 @@ body {
 }
 .main .page-header {
   margin-top: 0;
+}
+
+/*
+ * Reduce the padding for the rows in the table.
+ */
+.table>tbody>tr>td {
+    padding: 5px;
+}
+
+#loader {
+    border: 16px solid #f3f3f3; /* Light grey */
+    border-top: 16px solid #3498db; /* Blue */
+    border-radius: 50%;
+    width: 100px;
+    height: 100px;
+    animation: spin 2s linear infinite;
+    display: block;
+    margin-left: auto;
+    margin-right: auto;
+}
+
+@keyframes spin {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
 }

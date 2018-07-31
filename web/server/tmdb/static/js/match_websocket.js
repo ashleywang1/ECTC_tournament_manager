@@ -1,5 +1,15 @@
 tmdb_vars = {};
 tmdb_vars.tournament_data = {};
+tmdb_vars_REPORT_STATUS_EMPTY_VALUE = 0;
+tmdb_vars_REPORT_STATUS_HOLDING_VALUE = 1;
+tmdb_vars_REPORT_STATUS_AT_RING_VALUE = 2;
+tmdb_vars_REPORT_STATUS_COMPETING_VALUE = 3;
+
+tmdb_vars_MATCH_STATUS_CODE_SENT_NOT_STARTED = 4;
+tmdb_vars_MATCH_STATUS_CODE_SENT_IN_HOLDING  = 5;
+tmdb_vars_MATCH_STATUS_CODE_SENT_TO_RING  = 6;
+tmdb_vars_MATCH_STATUS_CODE_AT_RING  = 7;
+tmdb_vars_MATCH_STATUS_CODE_COMPLETE = 8;
 
 function delete_tourament_datum(datum) {
   datum.model = datum.model.replace(".", "_");
@@ -36,8 +46,8 @@ function createObjectElem(elem_type, elem_content) {
 }
 
 function render_initial_display() {
-  add_filter_options();
-  set_show_all_filter();
+  // Hide the loader if the data has been loaded.
+  document.getElementById("loader-wrapper").style = "display:none";
   render_full_display();
 }
 
@@ -54,13 +64,16 @@ function set_show_all_filter() {
 function set_active_matches_filter() {
   tmdb_vars.team_match_filter = function(team_match) {
     var match_status = evaluate_status(team_match);
-    if (match_status['match_status_code'] == 1) {
+     if (match_status['match_status_code'] == tmdb_vars_REPORT_STATUS_COMPETING_VALUE) {
+        return true;
+     }
+    if (match_status['match_status_code'] == tmdb_vars_MATCH_STATUS_CODE_SENT_IN_HOLDING) {
       return true;
     }
-    if (match_status['match_status_code'] == 2) {
+    if (match_status['match_status_code'] == tmdb_vars_MATCH_STATUS_CODE_SENT_TO_RING) {
       return true;
     }
-    if (match_status['match_status_code'] == 3) {
+    if (match_status['match_status_code'] == tmdb_vars_MATCH_STATUS_CODE_AT_RING) {
       return true;
     }
     return false;
@@ -166,6 +179,11 @@ function set_school_filter() {
 }
 
 function add_filter_options() {
+  var filter_label = document.getElementById('filter-label');
+  if (filter_label.innerHTML != "") {
+    return;
+  }
+  filter_label.innerHTML = "Filter matches:"
   var filter_div = document.getElementById('filter_type');
   var filter_type_elem = document.createElement('select');
   filter_div.append(filter_type_elem);
@@ -198,6 +216,8 @@ function add_filter_options() {
     selected_filter();
     render_full_display();
   });
+
+  set_show_all_filter();
 }
 
 function render_full_display() {
@@ -205,8 +225,19 @@ function render_full_display() {
   for (var i = 0; i < match_queues.length; ++i) {
     match_queue = match_queues[i];
     match_queue.innerHTML = '';
+
+    if (tmdb_vars.tournament_data.tmdb_teammatch === undefined) {
+      var empty_match_list = createTextElem("div", "No matches have been created for this tournament.");
+      empty_match_list.className += "alert alert-warning";
+      match_queue.appendChild(empty_match_list);
+      continue;
+    }
+    var team_matches = Object.values(
+        tmdb_vars.tournament_data.tmdb_teammatch);
+
+    add_filter_options();
     var match_queue_table = document.createElement("table");
-    match_queue_table.className += "table table-striped match_table table";
+    match_queue_table.className += "table match_table table";
     match_queue.appendChild(match_queue_table);
     var match_queue_table_header = document.createElement("thead");
     match_queue_table.appendChild(match_queue_table_header);
@@ -216,14 +247,10 @@ function render_full_display() {
     match_queue_row.appendChild(createTextElem("th", "Round"));
     match_queue_row.appendChild(createTextElem("th", "Blue Team"));
     match_queue_row.appendChild(createTextElem("th", "Red Team"));
-    match_queue_row.appendChild(createTextElem("th", "In Holding?"));
-    match_queue_row.appendChild(createTextElem("th", "At Ring?"));
+    match_queue_row.appendChild(createTextElem("th", "Report Status"));
     match_queue_row.appendChild(createTextElem("th", "Ring No."));
     match_queue_row.appendChild(createTextElem("th", "Winning Team"));
     match_queue_row.appendChild(createTextElem("th", "Status"));
-    match_queue_row.appendChild(createTextElem("th", "Match Sheet"));
-    var team_matches = Object.values(
-        tmdb_vars.tournament_data.tmdb_teammatch);
     team_matches = team_matches.sort(function(team_match1, team_match2) {
       return team_match1.fields.number - team_match2.fields.number;
     });
@@ -236,12 +263,10 @@ function render_full_display() {
       match_queue_row.append(createTextElem("td", render_round_num(team_match)));
       match_queue_row.append(createTextElem("td", render_blue_team_name(team_match)));
       match_queue_row.append(createTextElem("td", render_red_team_name(team_match)));
-      match_queue_row.append(createObjectElem("td", render_in_holding(team_match)));
-      match_queue_row.append(createObjectElem("td", render_at_ring(team_match)));
+      match_queue_row.append(createObjectElem("td", render_report_status(team_match)));
       match_queue_row.append(createObjectElem("td", render_ring_number(team_match)));
       match_queue_row.append(createObjectElem("td", render_winning_team(team_match)));
       match_queue_row.append(createTextElem("td", render_status(team_match)));
-      match_queue_row.append(createObjectElem("td", render_match_sheet(team_match)));
       var match_status = evaluate_status(team_match);
       match_queue_row.className = match_status['match_status_css_class'];
     });
@@ -267,7 +292,8 @@ function render_round_num(team_match) {
     return "Semi-Finals";
   if (round_num == 2)
     return "Quarter-Finals";
-  return "Round of " + 2**round_num;
+   // Added 1 because round numbers start at 0, not 1
+  return "Round of " + 2**(round_num + 1);
 }
 
 function render_blue_team_name(team_match) {
@@ -321,37 +347,68 @@ function render_school_name(school_id) {
   return school.fields.name;
 }
 
-function render_in_holding(team_match) {
-  var check_box = document.createElement("input");
-  check_box.type = "checkbox";
-  check_box.name = "in_holding";
-  check_box.value = team_match.pk;
-  check_box.checked = team_match.fields.in_holding;
-  check_box.onclick = function() {
-    on_in_holding_changed(this, team_match.pk);
-  };
-  return check_box;
-}
+function render_report_status(team_match) {
+  var select_menu = document.createElement("select");
+  var empty_option = document.createElement("option");
+  var holding_option = document.createElement("option");
+  var at_ring_option = document.createElement("option");
+  var competing_option = document.createElement("option");
 
-function render_at_ring(team_match) {
-  var check_box = document.createElement("input");
-  check_box.type = "checkbox";
-  check_box.name = "at_ring";
-  check_box.value = team_match.pk;
-  check_box.checked = team_match.fields.at_ring;
-  check_box.onclick = function() {
-    on_at_ring_changed(this, team_match.pk);
+  empty_option.value = tmdb_vars_REPORT_STATUS_EMPTY_VALUE;
+  holding_option.value = tmdb_vars_REPORT_STATUS_HOLDING_VALUE;
+  at_ring_option.value = tmdb_vars_REPORT_STATUS_AT_RING_VALUE;
+  competing_option.value = tmdb_vars_REPORT_STATUS_COMPETING_VALUE;
+
+  empty_option.innerHTML = "---";
+  holding_option.innerHTML = "To holding";
+  at_ring_option.innerHTML = "At ring";
+  competing_option.innerHTML = "Competing";
+
+  select_menu.style = "width: 120px";
+  select_menu.appendChild(empty_option);
+  select_menu.appendChild(holding_option);
+  select_menu.appendChild(at_ring_option);
+  select_menu.appendChild(competing_option);
+
+
+  if (team_match.fields.competing) {
+      select_menu.value = tmdb_vars_REPORT_STATUS_COMPETING_VALUE;
+  } else if (team_match.fields.at_ring) {
+    select_menu.value = tmdb_vars_REPORT_STATUS_AT_RING_VALUE;
+  } else if (team_match.fields.in_holding) {
+    select_menu.value = tmdb_vars_REPORT_STATUS_HOLDING_VALUE;
+  }
+  else {
+    select_menu.value = tmdb_vars_REPORT_STATUS_EMPTY_VALUE;
+  }
+
+  select_menu.name = "report_status";
+  select_menu.onchange = function() {
+    on_report_status_changed(this, team_match.pk);
   };
-  return check_box;
+
+  var match_status = evaluate_status(team_match);
+  if (match_status['match_status_code'] == tmdb_vars_MATCH_STATUS_CODE_COMPLETE) {
+    select_menu.disabled = true;
+  }
+
+  return select_menu;
 }
 
 function render_ring_number(team_match) {
   var text_field = document.createElement("input");
   text_field.type = "number";
   text_field.name = "ring_number";
+  text_field.min = 1;
+  text_field.max = 7;
   text_field.value = team_match.fields.ring_number;
   text_field.onchange = function() {
     on_ring_number_changed(this, team_match.pk);
+  }
+
+  var match_status = evaluate_status(team_match);
+  if (match_status['match_status_code'] == tmdb_vars_MATCH_STATUS_CODE_COMPLETE) {
+    text_field.disabled = true;
   }
   return text_field;
 }
@@ -361,6 +418,7 @@ function render_winning_team(team_match) {
   var option = document.createElement("option");
   option.value = '';
   option.innerHTML = "---";
+  select_menu.style = "width:200px;";
   select_menu.appendChild(option);
   if (team_match.fields.blue_team != null) {
     option = document.createElement("option");
@@ -386,34 +444,32 @@ function render_status(team_match) {
   return match_status.match_status_text;
 }
 
-function render_match_sheet(team_match) {
-  var hyperlink = document.createElement("a");
-  hyperlink.className += "btn btn-primary";
-  hyperlink.href = "/tmdb/match_sheet?team_match_pk=" + team_match.pk;
-  hyperlink.innerHTML = "Print";
-  hyperlink.target = "_blank";
-  return hyperlink;
-}
-
 function evaluate_status(team_match) {
   if (team_match.fields.winning_team != null) {
     return {
         match_status_css_class: 'team_match_complete',
-        match_status_code: 4,
+        match_status_code: tmdb_vars_MATCH_STATUS_CODE_COMPLETE,
         match_status_text: "Complete"
     };
   }
   if (team_match.fields.ring_number != null) {
+    if (team_match.fields.competing) {
+      return {
+          match_status_css_class: 'team_match_competing',
+          match_status_code: 5,
+          match_status_text: "Competing at ring " + team_match.fields.ring_number
+      };
+    }
     if (team_match.fields.at_ring) {
       return {
           match_status_css_class: 'team_match_at_ring',
-          match_status_code: 3,
+          match_status_code: tmdb_vars_MATCH_STATUS_CODE_AT_RING,
           match_status_text: "At ring " + team_match.fields.ring_number
       };
     } else {
       return {
           match_status_css_class: 'team_match_sent_to_ring',
-          match_status_code: 2,
+          match_status_code: tmdb_vars_MATCH_STATUS_CODE_SENT_TO_RING,
           match_status_text: "Sent to ring " + team_match.fields.ring_number
       };
     }
@@ -421,13 +477,13 @@ function evaluate_status(team_match) {
   if (team_match.fields.in_holding) {
     return {
         match_status_css_class: 'team_match_in_holding',
-        match_status_code: 1,
+        match_status_code: tmdb_vars_MATCH_STATUS_CODE_SENT_IN_HOLDING,
         match_status_text: "Report to holding"
     };
   }
   return {
       match_status_css_class: 'team_match_not_started',
-      match_status_code: 0,
+      match_status_code: tmdb_vars_MATCH_STATUS_CODE_SENT_NOT_STARTED,
       match_status_text: ""
   };
 }
@@ -502,21 +558,14 @@ function start_teammatch_websocket(tournament_slug, tournament_json_url) {
   tmdb_vars.match_update_ws.onclose = on_websocket_close;
 }
 
-function on_in_holding_changed(element, team_match_pk) {
+function on_report_status_changed(element, team_match_pk) {
   var team_match = {};
   team_match.model = 'tmdb.teammatch';
   team_match.pk = team_match_pk;
   team_match.fields = {};
-  team_match.fields.in_holding = element.checked;
-  tmdb_vars.match_update_ws.send(JSON.stringify([team_match]));
-}
-
-function on_at_ring_changed(element, team_match_pk) {
-  var team_match = {};
-  team_match.model = 'tmdb.teammatch';
-  team_match.pk = team_match_pk;
-  team_match.fields = {};
-  team_match.fields.at_ring = element.checked;
+  team_match.fields.in_holding = (element.value >= tmdb_vars_REPORT_STATUS_HOLDING_VALUE);
+  team_match.fields.at_ring = (element.value >= tmdb_vars_REPORT_STATUS_AT_RING_VALUE);
+  team_match.fields.competing = (element.value >= tmdb_vars_REPORT_STATUS_COMPETING_VALUE);
   tmdb_vars.match_update_ws.send(JSON.stringify([team_match]));
 }
 

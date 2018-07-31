@@ -133,7 +133,7 @@ json_fields = {
                     'points', 'seed',),
     'team_match': ('id', 'blue_team', 'red_team', 'winning_team', 'division',
                     'in_holding', 'at_ring', 'number', 'ring_assignment_time',
-                    'ring_number', 'round_num', 'round_slot',),
+                    'ring_number', 'round_num', 'round_slot', 'competing',),
 }
 
 def tournament_json(request, tournament_slug):
@@ -172,6 +172,7 @@ def tournament_json(request, tournament_slug):
     msg_json = json.dumps(msg)
     return HttpResponse(msg_json, content_type="application/json")
 
+@login_required
 def tournament_school(request, tournament_slug, school_slug):
     tournament = get_object_or_404(models.Tournament, slug=tournament_slug)
     school = get_object_or_404(models.School, slug=school_slug)
@@ -222,7 +223,7 @@ def tournament_school_import(request, tournament_slug, school_slug=None):
             continue
         try:
             school_reg.import_competitors_and_teams(reimport=reimport)
-        except Exception as e:
+        except models.SchoolValidationError as e:
             err_msg = "Error importing %s: %s" %(school_reg.school.name,
                     str(e))
             err_msgs.append(err_msg)
@@ -235,10 +236,25 @@ def tournament_school_import(request, tournament_slug, school_slug=None):
     return HttpResponseRedirect(reverse('tmdb:tournament_schools',
             args=(tournament_slug,)))
 
+def attach_school_registration_import_errors(school_registrations):
+    school_registrations_by_id = {sr.pk:sr for sr in school_registrations}
+    import_errors = models.SchoolRegistrationError.objects.filter(
+        school_registration__in=[sr.pk for sr in school_registrations]
+    )
+    for import_error in import_errors:
+        school_registration = school_registrations_by_id[
+                import_error.school_registration.pk]
+        try:
+            school_registration.import_errors.append(import_error)
+        except AttributeError:
+            school_registration.import_errors = [import_error]
+
+@login_required
 def tournament_schools(request, tournament_slug):
     tournament = get_object_or_404(models.Tournament, slug=tournament_slug)
     school_registrations = models.SchoolRegistration.objects.filter(
         tournament=tournament).order_by('school__name')
+    attach_school_registration_import_errors(school_registrations)
     context = {
         'tournament': tournament,
         'all_schools_imported': all(s.imported for s in school_registrations),
