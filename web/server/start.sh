@@ -1,5 +1,4 @@
 #!/bin/sh
-cd server
 
 # Import Gdrive creds
 python3 manage.py update_gdrive_creds -f keys.json

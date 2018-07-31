@@ -8,9 +8,8 @@ COPY requirements.txt /data/web/
 # Setup
 RUN apk update
 RUN apk upgrade
-RUN apk add gcc g++ make
+RUN apk add --update python3 python3-dev postgresql-client postgresql-dev build-base gettext
 RUN apk add --update git
-RUN apk add --update python3 postgresql-client postgresql-dev build-base gettext
 # This gets cryptography module to install
 RUN apk add --update gcc musl-dev python3-dev libffi-dev libressl-dev
 # This gets Pillow to install
@@ -23,5 +22,4 @@ RUN apk del -r python3-dev postgresql
 
 # Prepare
 COPY . /data/web/
-#RUN mkdir -p mydjango/static/admin
 RUN mkdir -p server/tmdb/static/admin

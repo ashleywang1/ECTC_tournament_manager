@@ -4,7 +4,6 @@ services:
   web:
     restart: always
     build: ./web/
-    working_dir: /data/web
     command: "./start.sh"
     expose:
       - "8000"
@@ -12,11 +11,9 @@ services:
       - postgres:postgres
       - redis:redis
     env_file: env
+    working_dir: /data/web/server
     volumes:
       - ./web:/data/web
-    depends_on:
-      postgres:
-          condition: service_healthy
   nginx:
     restart: always
     build: ./nginx/
@@ -38,11 +35,6 @@ services:
       - env
     expose:
       - "5432"
-    healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U postgres"]
-      interval: 30s
-      timeout: 30s
-      retries: 3
   redis:
     restart: always
     image: redis:latest
