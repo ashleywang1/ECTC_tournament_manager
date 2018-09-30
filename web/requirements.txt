@@ -39,3 +39,4 @@ Twisted==17.5.0
 txaio==2.8.0
 uritemplate==3.0.0
 zope.interface==4.4.2
+asgi_redis==1.4.3
