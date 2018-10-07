@@ -1,4 +1,5 @@
 #!/bin/sh
+cd server
 
 # First time tmdb startup
 python3 manage.py makemigrations tmdb && python3 manage.py migrate
