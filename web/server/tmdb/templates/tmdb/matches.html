@@ -1,6 +1,0 @@
-{% extends "tmdb/base_tournament_dashboard.html" %}
-
-{% block content %}
-  <h2>Matches at {{tournament}}</h2>
-  {% include "tmdb/snippets/match_table_component.html" with tournament=tournament only %}
-{% endblock %}

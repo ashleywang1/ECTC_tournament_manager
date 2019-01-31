@@ -11,7 +11,7 @@ services:
       - postgres:postgres
       - redis:redis
     env_file: env
-    working_dir: /data/web/server
+    working_dir: /data/web
     volumes:
       - ./web:/data/web
   nginx:
@@ -45,4 +45,5 @@ services:
     image: alpine
     volumes:
       - /var/lib/postgresql
+      - ./web/server/tmdb
     command: "true"

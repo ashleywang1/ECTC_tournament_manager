@@ -1,0 +1,3 @@
+[submodule "web/server"]
+	path = web/server
+	url = https://github.com/ashish-b10/tournament_manager.git
