@@ -12,7 +12,7 @@ Windows 10: https://runnable.com/docker/install-docker-on-windows-10
 
 # Steps to start up the website
 1) Clone this repository
-```git clone https://github.com/ashleywang1/ECTC_tournament_manager.git```
+```git clone --recurse-submodule https://github.com/ashleywang1/ECTC_tournament_manager.git```
 
 Also, run this command:
 ```git submodule init; git submodule update```
