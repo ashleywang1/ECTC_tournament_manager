@@ -3,7 +3,11 @@ Docker version of https://github.com/ashish-b10/tournament_manager
 
 # Prerequisites
 Have Docker installed -
+
+Linux: https://runnable.com/docker/install-docker-on-linux
+
 Mac OS: https://runnable.com/docker/install-docker-on-macos 
+
 Windows 10: https://runnable.com/docker/install-docker-on-windows-10
 
 # Steps to start up the website
@@ -20,3 +24,7 @@ Windows 10: https://runnable.com/docker/install-docker-on-windows-10
 ```docker-compose up```
 
 5) Go to localhost on your browser.
+
+# Developing
+
+We use git submodules in order to pull in the tournament manager code from https://github.com/ashish-b10/tournament_manager. As a result, it is possible to add your commits to the tournament_manager repository. Just make sure you are in the web/server directory when you run any git commands.
