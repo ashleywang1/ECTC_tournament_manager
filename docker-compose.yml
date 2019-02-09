@@ -45,5 +45,4 @@ services:
     image: alpine
     volumes:
       - /var/lib/postgresql
-      - ./web/server/tmdb
     command: "true"
