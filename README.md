@@ -29,14 +29,16 @@ Also, run this command:
 5) Go to localhost on your browser.
 
 6) In a new terminal, in the ECTC_tournament_manager directory, run the following commands:
+
 ```docker exec -it ectc_tournament_manager_web_1 /bin/sh```
 
 ```cd /data/web/server```
 
 ```python3 manage.py createsuperuser```
 
-Create a temporary superuser account.
+Create a temporary superuser account. Use this account to log in.
 
+7) Click on 'Settings', and then click on 'Set Import Registration Credentials', and load in the Google Drive credentials. (Ask Ashish for these keys, and do not upload them into this repository!)
 
 # Developing
 
