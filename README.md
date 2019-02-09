@@ -14,11 +14,11 @@ Windows 10: https://runnable.com/docker/install-docker-on-windows-10
 1) Clone this repository
 ```git clone https://github.com/ashleywang1/ECTC_tournament_manager.git```
 
-Also, run this command:
-```git submodule init; git submodule update```
 
 2) In your computer, you should now have a directory called ECTC_tournament_manager. cd into that directory.
 ```cd ECTC_tournament_manager```
+Also, run this command:
+```git submodule init; git submodule update```
 
 3) Build your docker image
 ```docker-compose build```
