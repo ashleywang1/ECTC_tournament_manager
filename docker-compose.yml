@@ -5,6 +5,9 @@ services:
     restart: always
     build: ./web/
     command: "./start.sh"
+    depends_on:
+      postgres:
+        condition: service_healthy
     expose:
       - "8000"
     links:
@@ -31,6 +34,11 @@ services:
     volumes:
       - ./postgres/docker-entrypoint-initdb.d:/docker-entrypoint-initdb.d
       - ./backups/postgresql:/backup
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres"]
+      interval: 30s
+      timeout: 30s
+      retries: 3
     env_file:
       - env
     expose:
@@ -41,8 +49,7 @@ services:
     expose:
       - "6379"
   data:
-    restart: always
-    image: alpine
+    image: alpine:latest
     volumes:
-      - /var/lib/postgresql
+      - ./postgres/data:/var/lib/postgresql/data/pgdata
     command: "true"
