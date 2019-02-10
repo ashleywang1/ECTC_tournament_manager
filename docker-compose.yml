@@ -32,7 +32,7 @@ services:
     volumes_from:
       - data
     volumes:
-      - ./postgres/docker-entrypoint-initdb.d:/docker-entrypoint-initdb.d
+      - ./postgresql/docker-entrypoint-initdb.d:/docker-entrypoint-initdb.d
       - ./backups/postgresql:/backup
     healthcheck:
       test: ["CMD-SHELL", "pg_isready -U postgres"]
@@ -51,5 +51,5 @@ services:
   data:
     image: alpine:latest
     volumes:
-      - ./postgres/data:/var/lib/postgresql/data/pgdata
+      - ./postgresql/data:/var/lib/postgresql/data/pgdata
     command: "true"
