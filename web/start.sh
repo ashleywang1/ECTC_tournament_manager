@@ -1,6 +1,6 @@
 #!/bin/sh
 
-if [ ! -f /server/ectc_tm_server/custom_settings.py ]; then
+if [ ! -f ./server/ectc_tm_server/custom_settings.py ]; then
     echo "Generating new server settings!"
     cd server/ectc_tm_server
 	python3 generate_custom_settings.py
